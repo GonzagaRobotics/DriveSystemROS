@@ -1,8 +1,0 @@
-# ROS Generated Files
-build/
-install/
-log/
-*.swp
-
-# Temp solution for dependencies
-src/rcs_interfaces/
