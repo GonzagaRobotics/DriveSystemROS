@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-
+# Go through Crash Course for ROS 2 humble
+#convert to ROS 2 humble node
+#test
+#rewrite node
 import rospy
 from geometry_msgs.msg import Twist  # For velocity commands
 from std_msgs.msg import Bool        # For enabling/disabling traction control
