@@ -7,30 +7,37 @@ class SpeedControllerNode(Node):
     def __init__(self):
         super().__init__('speed_controller_node')
 
-        # Set up the serial connection
-        self.ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)  # Adjust port as needed
+        self.serial_port = self.find_serial_port()
+        if not self.serial_port:
+            self.get_logger().error("No serial ports detected")
+            rclpy.shutdown()
+            return
 
-        # Create a subscriber for the speed topic
+            #serial connection
+            self.ser = serial.Serial(self.serial_port, 9600, timeout=1)
+            self.get_logger().info(f"Connected to serial port: {self.serial_port}")
+
         self.subscription = self.create_subscription(
             Float32MultiArray,  # Expecting an array of two floats [FB, LR]
-            'speed_topic',      # Topic name
+            'speed_topic',    
             self.speed_callback,
-            10                  # Queue size
+            10              
         )
 
     def speed_callback(self, msg):
-        # Extract the FB and LR values from the message
+        # Extract FB and LR 
         FB, LR = msg.data
         self.get_logger().info(f"Received speeds - FB: {FB} LR: {LR}")
-        signal = f"FB:{FB} LR:{LR}\n"  # Format the signal
+        signal = f"FB:{FB} LR:{LR} EN:1\n"  # Format the signal
         self.ser.write(signal.encode())  # Send the signal as bytes
         self.get_logger().info(f"Sent to serial: {signal.strip()}")
 
-        # Listen for response from the microcontroller
-        response = self.ser.readline().decode().strip()  # Read and decode response
+        # response from the microcontroller
+        response = self.ser.readline().decode().strip()
         if response:
             self.get_logger().info(f"Received from microcontroller: {response}")
-
+        return
+    
 def main(args=None):
     rclpy.init(args=args)
     node = SpeedControllerNode()
@@ -39,7 +46,6 @@ def main(args=None):
     except KeyboardInterrupt:
         node.get_logger().info("Node stopped by user.")
     finally:
-        # Close the serial connection on exit
         if node.ser.is_open:
             node.ser.close()
         node.destroy_node()
