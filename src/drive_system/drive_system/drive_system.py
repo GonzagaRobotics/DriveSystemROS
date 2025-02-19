@@ -28,7 +28,9 @@ class DriveSystem(Node):
         # TODO: We are likely going to have multiple potential
         # serial devices active, so we will also need some mechanism to find
         # the correct one.
-        return serial.Serial('/dev/ttyS0')
+        # TODO: we'll also have to check for permission, as /dev/ttyUSB0 defaults to root
+        #   and we need to run `sudo chmod 666 /dev/ttyUSB0` when the esp32 is plugged in again
+        return serial.Serial('/dev/ttyUSB0')
 
     def drive_callback(self, msg):
         # Extract FB and LR
